@@ -1,23 +1,25 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authStore } from "@/stores/authStore";
 import { musicStore } from "@/stores/musicStore";
-import { Album, Music } from "lucide-react";
+import { Album, Music, Users } from "lucide-react";
 import { useEffect } from "react";
 import AdminTopbar from "./components/AdminTopbar";
 import Dashboard from "./components/Dashboard";
 import Songs from "./components/Songs";
 import Albums from "./components/Albums";
+import Authors from "./components/Authors";
 
 function AdminPage() {
   const { isAdmin, isLoading } = authStore();
 
-	const { fetchAlbums, fetchSongs, fetchStats } = musicStore();
+	const { fetchAlbums, fetchSongs, fetchStats, fetchAuthors } = musicStore();
 
 	useEffect(() => {
 		fetchAlbums();
 		fetchSongs();
 		fetchStats();
-	}, [fetchAlbums, fetchSongs, fetchStats]);
+		fetchAuthors();
+	}, [fetchAlbums, fetchSongs, fetchStats, fetchAuthors]);
 
 	if (!isAdmin && !isLoading) return <div>Unauthorized</div>;
 
@@ -40,6 +42,10 @@ function AdminPage() {
 						<Album className='mr-2 size-4' />
 						Albums
 					</TabsTrigger>
+					<TabsTrigger value='authors' className='data-[state=active]:bg-zinc-700'>
+						<Users className='mr-2 size-4' />
+						Authors
+					</TabsTrigger>
 				</TabsList>
 
 				<TabsContent value='songs'>
@@ -47,6 +53,9 @@ function AdminPage() {
 				</TabsContent>
 				<TabsContent value='albums'>
 					<Albums/>
+				</TabsContent>
+				<TabsContent value='authors'>
+					<Authors/>
 				</TabsContent>
 			</Tabs>
 		</div>

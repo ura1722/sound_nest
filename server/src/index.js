@@ -6,10 +6,14 @@ import { clerkMiddleware } from '@clerk/express'
 import userRoutes from "./routes/userRoute.js"
 import adminRoutes from "./routes/adminRoute.js"
 import authRoutes from "./routes/authRoute.js"
+import authorsRoutes from "./routes/authorsRoute.js"
 import songsRoutes from "./routes/songsRoute.js"
 import statisticRoutes from "./routes/statisticRoute.js"
 import albumsRoutes from "./routes/albumsRoute.js"
+import searchRoutes from "./routes/searchRoutes.js"
 import playlistRoutes from "./routes/playlistRoute.js"
+import { initializeSocket } from "./lib/socket.js";
+import { createServer } from "http"
 import cors from "cors"
 import fs from "fs"
 import cron from "node-cron";
@@ -22,6 +26,9 @@ const app = express()
 const __dirname = path.resolve()
 
 const PORT = process.env.PORT
+
+const httpServer = createServer(app);
+initializeSocket(httpServer);
 
 app.use(cors(
     {
@@ -64,6 +71,8 @@ app.use("/api/statistic", statisticRoutes)
 app.use("/api/songs", songsRoutes)
 app.use("/api/albums", albumsRoutes)
 app.use("/api/playlists", playlistRoutes)
+app.use("/api/authors", authorsRoutes)
+app.use("/api/search", searchRoutes)
 
 if (process.env.MODE === "production") {
 	app.use(express.static(path.join(__dirname, "../client/dist")));
@@ -76,7 +85,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: err.message });
 })
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
     console.log("Server is running on port " + PORT)
     connDB()
 })

@@ -7,7 +7,7 @@ const playlistSchema = new mongoose.Schema({
     },
     playlistImgUrl: {
         type: String,
-        default: "default_playlist_cover.jpg"
+        default: "https://res.cloudinary.com/dugumm2jf/image/upload/v1747757213/qcxv8maboaw52v3bsfzx.png"
     },
     playlistSongs: [{
         type: mongoose.Schema.Types.ObjectId,

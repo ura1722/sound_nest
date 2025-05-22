@@ -10,10 +10,25 @@ const songSchema = new mongoose.Schema({
         required: true
     },
     songAuthor: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Author',
+        required: true
+    },
+    genres: {
+        type: [String],
+        default: [],
+        required: true
+    },
+    moods: {
+        type: [String], 
+        default: [],
         required: true
     },
     songAudioUrl: {
+        type: String,
+        required: true
+    },
+    decade: {
         type: String,
         required: true
     },

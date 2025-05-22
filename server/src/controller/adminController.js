@@ -1,6 +1,7 @@
 import { Album } from "../models/albumModel.js";
 import { Song } from "../models/songModel.js";
 import cloudinary from "../lib/cloudinary.js";
+import { Author } from "../models/authorModel.js";
 
 const uploadCloudinary = async (file) => {
 	try {
@@ -24,17 +25,37 @@ export const createSong = async (req, res, next) =>{
         if(!req.files || !req.files.audioFile || !req.files.imageFile){
             return res.status(400).json({message:"Upload files"})
         }
-        const { songTitle, songAuthor, albumId, songDuration } = req.body;
+        const { songTitle, songAuthor, albumId, songDuration, genres, moods, decade } = req.body;
         const audioFile = req.files.audioFile;
 		const imageFile = req.files.imageFile;
 
         const songAudioUrl = await uploadCloudinary(audioFile);
 		const songImgUrl = await uploadCloudinary(imageFile);
+		let genresArray = genres
+		let moodsArray = moods
+		try{
+			genresArray = Array.isArray(genres) 
+      ? genres 
+      : JSON.parse(genres || '[]');
+		}catch{
+			 genresArray = genres
+		}
+		
+		try{
+	 moodsArray = Array.isArray(moods) 
+	  ? moods 
+	  : JSON.parse(moods || '[]');
+		}catch{
+			moodsArray = moods
+		}
         
         const song = new Song({
 			songTitle,
 			songAuthor,
+			genres: genresArray,
+      		moods: moodsArray,
 			songAudioUrl,
+			decade: decade,
 			songImgUrl,
 			songDuration,
 			albumId: albumId || null,
@@ -76,15 +97,36 @@ export const deleteSong = async (req, res, next) =>{
 
 export const createAlbum = async (req, res, next) =>{
 	try {
-		const { albumTitle, albumAuthor, albumRelease } = req.body;
+		const { albumTitle, albumAuthor, albumRelease, genres, moods, decade } = req.body;
 		const { imageFile } = req.files;
 
 		const albumImgUrl = await uploadCloudinary(imageFile);
+
+		let genresArray = genres
+		let moodsArray = moods
+		try{
+			genresArray = Array.isArray(genres) 
+      ? genres 
+      : JSON.parse(genres || '[]');
+		}catch{
+			 genresArray = genres
+		}
+		
+		try{
+	 moodsArray = Array.isArray(moods) 
+	  ? moods 
+	  : JSON.parse(moods || '[]');
+		}catch{
+			moodsArray = moods
+		}
 
 		const album = new Album({
 			albumTitle,
 			albumAuthor,
 			albumImgUrl,
+			genres: genresArray,
+      		moods: moodsArray,
+			decade: decade,
 			albumRelease,
 		});
 
@@ -113,3 +155,133 @@ export const deleteAlbum = async (req, res, next) =>{
 	}
     
 }
+export const createAuthor = async (req, res, next) => {
+    try {
+        const { name, genres, moods, decades } = req.body;
+    
+    const { imageFile } = req.files;
+
+	const imageUrl = await uploadCloudinary(imageFile);
+
+		let genresArray = genres
+		let moodsArray = moods
+		let decadesArray =	decades
+		try{
+			genresArray = Array.isArray(genres) 
+      ? genres 
+      : JSON.parse(genres || '[]');
+		}catch{
+			 genresArray = genres
+		}
+		
+		try{
+	 moodsArray = Array.isArray(moods) 
+	  ? moods 
+	  : JSON.parse(moods || '[]');
+		}catch{
+			moodsArray = moods
+		}
+
+		try{
+	decadesArray = Array.isArray(decades) 
+	  ? decades 
+	  : JSON.parse(decades || '[]');}catch{
+		  decadesArray = decades
+	  }
+
+    const newAuthor = new Author({
+      name,
+      imageUrl,
+      genres: genresArray,
+      moods: moodsArray,
+      decades: decadesArray
+    });
+
+    const savedAuthor = await newAuthor.save();
+    res.status(201).json(savedAuthor);
+    } catch (error) {
+        next(error);
+    }
+};
+export const updateAuthor = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { name, genres, moods, decades } = req.body;
+        let imageUrl = null;
+
+        // Обробка зображення, якщо воно було завантажене
+        if (req.files && req.files.imageFile) {
+            imageUrl = await uploadCloudinary(req.files.imageFile);
+        }
+
+        // Обробка масивів даних
+        let genresArray = genres;
+        let moodsArray = moods;
+        let decadesArray = decades;
+
+        try {
+            genresArray = Array.isArray(genres) ? genres : JSON.parse(genres || '[]');
+        } catch {
+            genresArray = genres;
+        }
+
+        try {
+            moodsArray = Array.isArray(moods) ? moods : JSON.parse(moods || '[]');
+        } catch {
+            moodsArray = moods;
+        }
+
+        try {
+            decadesArray = Array.isArray(decades) ? decades : JSON.parse(decades || '[]');
+        } catch {
+            decadesArray = decades;
+        }
+
+        // Підготовка даних для оновлення
+        const updateData = {
+            name,
+            genres: genresArray,
+            moods: moodsArray,
+            decades: decadesArray
+        };
+
+        // Додаємо URL зображення до оновлення, якщо воно було змінене
+        if (imageUrl) {
+            updateData.imageUrl = imageUrl;
+        }
+
+        // Оновлення автора
+        const updatedAuthor = await Author.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true } // Повертає оновлений документ
+        );
+
+        if (!updatedAuthor) {
+            return res.status(404).json({ message: "Author not found" });
+        }
+
+        res.status(200).json({
+            message: "Author updated successfully",
+            author: updatedAuthor
+        });
+    } catch (error) {
+        console.log("Error while updating author:", error);
+        next(error);
+    }
+};
+export const deleteAuthor = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+    await Song.deleteMany({ songAuthor: id })
+
+    await Album.deleteMany({ albumAuthor: id })
+
+    await Author.findByIdAndDelete(id);
+
+    res.json({ message: "Author deleted successfully" });
+    } catch (error) {
+        next(error);
+    }
+};

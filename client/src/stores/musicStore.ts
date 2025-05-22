@@ -1,43 +1,53 @@
 import { axiosInstance } from "@/lib/axios";
-import { Album, Song, Stats } from "../types";
+import { Album, Author, Song, Stats } from "../types";
 import toast from "react-hot-toast";
 import { create } from "zustand";
 
 interface MusicStore {
 	songs: Song[];
 	albums: Album[];
+	authors: Author[];
 	isLoading: boolean;
 	error: string | null;
+	currentAuthor: Author | null;
 	currentAlbum: Album | null;
-	likedSongs: string[];
+	likedSongs: Song[];
 	featuredSongs: Song[];
 	madeForYouSongs: Song[];
-	trendingSongs: Song[];
+	discoverSongs: Song[];
 	stats: Stats;
 
 	fetchAlbums: () => Promise<void>;
 	toggleLikeSong: (songId: string) => Promise<void>;
 	fetchAlbumById: (id: string) => Promise<void>;
+	fetchAuthorById: (id: string) => Promise<void>;
 	fetchFeaturedSongs: () => Promise<void>;
 	fetchLikedSongs: () => Promise<void>;
 	fetchMadeForYouSongs: () => Promise<void>;
-	fetchTrendingSongs: () => Promise<void>;
+	fetchDiscoverSongs: () => Promise<void>;
 	fetchStats: () => Promise<void>;
+	fetchAuthors: () => Promise<void>;
 	fetchSongs: () => Promise<void>;
 	deleteSong: (id: string) => Promise<void>;
 	deleteAlbum: (id: string) => Promise<void>;
+	deleteAuthor: (id: string) => Promise<void>;
+	//updateSong: (id: string, data: Partial<Song>) => Promise<void>;
+	//updateAlbum: (id: string, data: Partial<Album>) => Promise<void>;
+	updateAuthor: (id: string, data: Partial<Author>) => Promise<void>;
 }
 
 export const musicStore = create<MusicStore>((set) => ({
 	albums: [],
 	songs: [],
+	authors: [],
 	likedSongs: [],
 	isLoading: false,
 	error: null,
 	currentAlbum: null,
+	currentAuthor: null,
 	madeForYouSongs: [],
 	featuredSongs: [],
-	trendingSongs: [],
+	discoverSongs: [],
 	stats: {
 		totalSongs: 0,
 		totalAlbums: 0,
@@ -56,7 +66,7 @@ export const musicStore = create<MusicStore>((set) => ({
   fetchLikedSongs: async () => {
     try {
       const response = await axiosInstance.get('/users/liked-songs');
-      set({ likedSongs: response.data.likedSongs });
+      set({ likedSongs: response.data });
     } catch (error) {
       console.error("Failed to fetch liked songs:", error);
     }
@@ -73,6 +83,22 @@ export const musicStore = create<MusicStore>((set) => ({
 		} catch (error: any) {
 			console.log("Error in deleteSong", error);
 			toast.error("Error deleting song");
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+	deleteAuthor: async (id) => {
+		set({ isLoading: true, error: null });
+		try {
+			await axiosInstance.delete(`/admin/author-delete/${id}`);
+
+			set((state) => ({
+				authors: state.authors.filter((author) => author._id !== id),
+			}));
+			toast.success("Author deleted successfully");
+		} catch (error: any) {
+			console.log("Error in deleteAuthor", error);
+			toast.error("Error deleting author");
 		} finally {
 			set({ isLoading: false });
 		}
@@ -107,6 +133,31 @@ export const musicStore = create<MusicStore>((set) => ({
 			set({ isLoading: false });
 		}
 	},
+	fetchAuthors: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axiosInstance.get("/authors");
+			set({ authors: response.data });
+		} catch (error: any) {
+			set({ error: error.message });
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+	updateAuthor: async (id: string, data) => {
+  try {
+    await axiosInstance.put(`/admin/authors-update/${id}`, data);
+    // Оновити локальний стан після успішного оновлення
+    set(state => ({
+      authors: state.authors.map(author => 
+        author._id === id ? { ...author, ...data } : author
+      )
+    }));
+  } catch (error) {
+    console.error("Error updating author:", error);
+    throw error;
+  }
+},
 
 	fetchStats: async () => {
 		set({ isLoading: true, error: null });
@@ -144,6 +195,17 @@ export const musicStore = create<MusicStore>((set) => ({
 			set({ isLoading: false });
 		}
 	},
+	fetchAuthorById: async (id) => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axiosInstance.get(`/authors/${id}`);
+			set({ currentAuthor: response.data });
+		} catch (error: any) {
+			set({ error: error.response.data.message });
+		} finally {
+			set({ isLoading: false });
+		}
+	},
 
 	fetchFeaturedSongs: async () => {
 		set({ isLoading: true, error: null });
@@ -169,11 +231,11 @@ export const musicStore = create<MusicStore>((set) => ({
 		}
 	},
 
-	fetchTrendingSongs: async () => {
+	fetchDiscoverSongs: async () => {
 		set({ isLoading: true, error: null });
 		try {
-			const response = await axiosInstance.get("/songs/trending");
-			set({ trendingSongs: response.data });
+			const response = await axiosInstance.get("/songs/discover");
+			set({ discoverSongs: response.data });
 		} catch (error: any) {
 			set({ error: error.response.data.message });
 		} finally {

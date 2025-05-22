@@ -1,3 +1,4 @@
+import AddFriendButton from "@/components/AddFriendButton"
 import Playlist from "@/components/templates/Playlist"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { DialogTrigger, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
@@ -5,18 +6,19 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { axiosInstance } from "@/lib/axios"
 import { cn } from "@/lib/utils"
+import { playlistStore } from "@/stores/playlistStore"
 
-import { userStore } from "@/stores/userStore"
 
 
-import { HomeIcon, Library, Plus } from "lucide-react"
+
+import { Heart, HomeIcon, Library, Plus, Search, User2 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast"
 import { Link } from "react-router-dom"
 
 function SidebarMenu() {
     
-	const { playlists, fetchPlaylists, isLoading } = userStore();
+	const { playlists, fetchPlaylists, isLoading } = playlistStore();
 
 	useEffect(() => {
 		fetchPlaylists();
@@ -82,6 +84,43 @@ function SidebarMenu() {
 						<HomeIcon className='mr-2 size-5' />
 						<span className='hidden md:inline'>Home</span>
 					</Link>
+          <Link
+            to="/search"
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+                className: "w-full justify-start text-white hover:bg-zinc-800",
+              })
+            )}
+          >
+            <Search className='mr-2 size-5' />
+            <span className='hidden md:inline'>Search</span>
+          </Link>
+          <Link
+            to="/liked"
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+                className: "w-full justify-start text-white hover:bg-zinc-800",
+              })
+            )}
+          >
+            <Heart className='mr-2 size-5' />
+            <span className='hidden md:inline'>Liked</span>
+          </Link>
+          <Link
+            to="/chat"
+            className={cn(
+              buttonVariants({
+                variant: "ghost",
+                className: "w-full justify-start text-white hover:bg-zinc-800",
+              })
+            )}
+          >
+            <User2 className='mr-2 size-5' />
+            <span className='hidden md:inline'>Chat</span>
+          </Link>
+          <AddFriendButton />
 					<Dialog open={playlistDialogOpen} onOpenChange={setPlaylistDialogOpen}>
             <DialogTrigger asChild>
               <button

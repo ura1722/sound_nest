@@ -5,8 +5,8 @@ function Player() {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const isPlayingRef = useRef(false);
 	const prevSongRef = useRef<string | null>(null);
-
-	const { currentSong, isPlaying, playNext } = playerStore();
+	 
+	const { currentSong, isPlaying, playNext  } = playerStore();
 
 	// Track real playback state
 	useEffect(() => {
@@ -22,13 +22,14 @@ function Player() {
 		const audio = audioRef.current;
 		if (!audio) return;
 
-		const handleEnded = () => {
+		const handleEnded = async() => {
+			
 			playNext();
 		};
 
 		audio.addEventListener("ended", handleEnded);
 		return () => audio.removeEventListener("ended", handleEnded);
-	}, [playNext]);
+	}, [currentSong, playNext]);
 
 	// Handle song change
 	useEffect(() => {

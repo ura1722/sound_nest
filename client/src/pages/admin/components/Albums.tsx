@@ -46,7 +46,7 @@ function Albums() {
                                     <img src={album.albumImgUrl} alt={album.albumTitle} className='w-10 h-10 rounded object-cover' />
                                 </TableCell>
                                 <TableCell className='font-medium'>{album.albumTitle}</TableCell>
-                                <TableCell>{album.albumAuthor}</TableCell>
+                                <TableCell>{album.albumAuthor?.name}</TableCell>
                                 <TableCell>
                                     <span className='inline-flex items-center gap-1 text-zinc-400'>
                                         <Calendar className='h-4 w-4' />

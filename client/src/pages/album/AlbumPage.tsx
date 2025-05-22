@@ -70,7 +70,7 @@ function AlbumPage() {
 								<p className='text-sm font-medium'>Album</p>
 								<h1 className='text-7xl font-bold my-4'>{currentAlbum?.albumTitle}</h1>
 								<div className='flex items-center gap-2 text-sm text-zinc-100'>
-									<span className='font-medium text-white'>{currentAlbum?.albumAuthor}</span>
+									<span className='font-medium text-white'>{currentAlbum?.albumAuthor?.name}</span>
 									<span>• {currentAlbum?.albumSongs.length} songs</span>
 									<span>• {currentAlbum?.albumRelease}</span>
 								</div>
@@ -145,7 +145,7 @@ function AlbumPage() {
 
 													<div>
 														<div className={`font-medium ${isCurrentSong ? "text-orange-400" : "text-white"}`}>{song.songTitle}</div>
-														<div>{song.songAuthor}</div>
+														<div>{song.songAuthor?.name}</div>
 													</div>
 												</div>
 												<div className='flex items-center'>{song.createdAt.split("T")[0]}</div>

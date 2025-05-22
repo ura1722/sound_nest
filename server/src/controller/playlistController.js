@@ -21,8 +21,14 @@ export const createPlaylist = async (req, res) => {
         const { playlistTitle } = req.body;
         
         const user = await User.findOne({ clerkId: req.auth.userId });
-        const { imageFile } = req.files;
-        const playlistImgUrl = await uploadToCloudinary(imageFile);
+        
+        let playlistImgUrl;
+        
+        // Перевіряємо, чи було завантажено зображення
+        if (req.files && req.files.imageFile) {
+            const { imageFile } = req.files;
+            playlistImgUrl = await uploadToCloudinary(imageFile);
+        }
 
         const playlist = new Playlist({
             playlistTitle,
@@ -110,11 +116,23 @@ export const getPlaylistById = async (req, res) => {
         const playlist = await Playlist.findById(req.params.id)
             .populate({
                 path: 'playlistSongs',
-                populate: {
-                    path: 'albumId',
-                    select: 'albumTitle', // Only get the album title
-                    model: 'Album'
-                }
+                populate: [
+                    {
+                        path: 'songAuthor',
+                        select: '_id name', // Автор пісні у форматі {_id, name}
+                        model: 'Author'
+                    },
+                    {
+                        path: 'albumId',
+                        select: '_id albumTitle', // Альбом у форматі {_id, albumTitle}
+                        model: 'Album',
+                        populate: {
+                            path: 'albumAuthor',
+                            select: '_id name', // Автор альбому у форматі {_id, name}
+                            model: 'Author'
+                        }
+                    }
+                ]
             });
 
         

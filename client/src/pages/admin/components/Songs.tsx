@@ -57,7 +57,7 @@ function Songs() {
                                     <img src={song.songImgUrl} alt={song.songTitle} className='size-10 rounded object-cover' />
                                 </TableCell>
                                 <TableCell className='font-medium'>{song.songTitle}</TableCell>
-                                <TableCell>{song.songAuthor}</TableCell>
+                                <TableCell>{song.songAuthor?.name}</TableCell>
                                 <TableCell>
                                     <span className='inline-flex items-center gap-1 text-zinc-400'>
                                         <Calendar className='h-4 w-4' />

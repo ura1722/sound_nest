@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { musicStore } from "@/stores/musicStore";
 import { playerStore } from "@/stores/playerStore";
-import { userStore } from "@/stores/userStore";
+
 import { CirclePause, Clock, MoreVertical, Pause, Play } from "lucide-react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import toast from "react-hot-toast";
 import { Song } from "@/types";
+import { playlistStore } from "@/stores/playlistStore";
 
 const formatDuration = (seconds: number) => {
   const minutes = Math.floor(seconds / 60);
@@ -25,7 +26,7 @@ function PlaylistPage() {
   const { id } = useParams();
   const { isLoading } = musicStore();
   const { currentSong, isPlaying, playPlaylist, togglePlay } = playerStore();
-  const { currentPlaylist, fetchPlaylistById, removeSongFromPlaylist } = userStore();
+  const { currentPlaylist, fetchPlaylistById, removeSongFromPlaylist } = playlistStore();
 
   useEffect(() => {
     if (id) fetchPlaylistById(id);
@@ -172,7 +173,7 @@ function PlaylistPage() {
                             <div className={`font-medium ${isCurrentSong ? "text-orange-400" : "text-white"}`}>
                               {song.songTitle}
                             </div>
-                            <div>{song.songAuthor}</div>
+                            <div>{song.songAuthor?.name}</div>
                           </div>
                         </div>
                         

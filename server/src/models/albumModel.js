@@ -9,8 +9,21 @@ const albumSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    albumAuthor: {
+    genres: {
+        type: [String],
+        default: []
+    },
+    moods: {
+        type: [String], 
+        default: []
+    },
+    decade: {
         type: String,
+        required: true
+    },
+    albumAuthor: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Author',
         required: true
     },
     albumRelease: {

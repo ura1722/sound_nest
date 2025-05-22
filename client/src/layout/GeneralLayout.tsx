@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import SidebarMenu from "./components/SidebarMenu";
 import Player from "./components/Player";
 import PlayerPanel from "./components/PlayerPanel";
+import FriendsActivity from "./components/FriendsActivity";
 
 function GeneralLayout() {
     const [isMobile, setIsMobile] = useState(false)
@@ -34,6 +35,17 @@ function GeneralLayout() {
 				<ResizablePanel defaultSize={isMobile ? 80 : 60}>
 					<Outlet />
 				</ResizablePanel>
+
+				{!isMobile && (
+					<>
+						<ResizableHandle className='w-2 bg-black rounded-lg transition-colors' />
+
+						{/* right sidebar */}
+						<ResizablePanel defaultSize={20} minSize={0} maxSize={20} collapsedSize={0}>
+							<FriendsActivity />
+						</ResizablePanel>
+					</>
+				)}
 
 				
 			</ResizablePanelGroup>

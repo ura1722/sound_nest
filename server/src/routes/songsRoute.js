@@ -1,12 +1,12 @@
 import {Router} from "express"
-import { getSongs, getFeaturedSongs, getRecommendedSongs, getTrendingSongs } from "../controller/songController.js"
+import { getSongs, getDiscoverSongs, getRecommendedSongs, getFeatureSongs } from "../controller/songController.js"
 import { ifAdmin, protectRoute } from "../middleware/authMiddlware.js"
 
 const router = Router()
 
 router.get('/', protectRoute, ifAdmin, getSongs)
-router.get('/featured', getFeaturedSongs)
+router.get('/discover', getDiscoverSongs)
 router.get('/recommended', getRecommendedSongs)
-router.get('/trending', getTrendingSongs)
+router.get('/featured', getFeatureSongs)
 
 export default router

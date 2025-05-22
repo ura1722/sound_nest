@@ -21,18 +21,22 @@ function AuthCallback() {
 			try {
 				syncAttempted.current = true;
 
-				await axiosInstance.post("/auth/callback", {
+				const response =await axiosInstance.post("/auth/callback", {
 					id: user.id,
 					firstName: user.firstName,
 					lastName: user.lastName,
 					userImgUrl: user.imageUrl,
 				});
+				// Перевіряємо, чи це перший вхід
+        	if (response.data.isFirstLogin) {
+          		navigate("/select-artists");
+        	} else {
+          		navigate("/");
+        	}
         
 			} catch (error) {
 				console.log("Error in auth callback", error);
-			} finally {
-				navigate("/");
-			}
+			} 
 		};
 
 		syncUser();

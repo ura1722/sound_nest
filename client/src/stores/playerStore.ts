@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { Song } from "@/types";
+import { axiosInstance } from "@/lib/axios";
+import { chatStore } from "./chatStore";
 
 interface PlayerStore {
 	currentSong: Song | null;
@@ -42,6 +44,14 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 		const song = songs[startIndex];
 		const { isShuffle } = get();
 
+		const socket = chatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity: `${song.songTitle} by ${song.songAuthor?.name}`,
+			});
+		}
+
 	set({
 		queue: songs,
 		currentSong: song,
@@ -56,6 +66,14 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 
 		const song = songs[startIndex];
 		const { isShuffle } = get();
+
+		const socket = chatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity: `${song.songTitle} by ${song.songAuthor?.name}`,
+			});
+		}
 
 	set({
 		queue: songs,
@@ -72,6 +90,14 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 
 		const songIndex = get().queue.findIndex((s) => s._id === song._id);
 		const { isShuffle } = get();
+
+		const socket = chatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity: `${song.songTitle} by ${song.songAuthor?.name}`,
+			});
+		}
 		set({
 			currentSong: song,
 			isPlaying: true,
@@ -81,7 +107,17 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 	},
 
 	togglePlay: () => {
+		const currentSong = get().currentSong;
 		const willStartPlaying = !get().isPlaying;
+
+		const socket = chatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity:
+					willStartPlaying && currentSong ? `${currentSong.songTitle} by ${currentSong.songAuthor?.name}` : "Idle",
+			});
+		}
 		set({
 			isPlaying: willStartPlaying,
 		});
@@ -94,10 +130,19 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 		playedSongs:  currentSong ? [currentSong._id] : [],
 	});
 },
-
+	
 	playNext: () => {
 		
-		const { queue, currentIndex, isShuffle, playedSongs } = get();
+		const { queue, currentIndex, isShuffle, playedSongs, currentSong } = get();
+
+		if (currentSong) {
+    		const audio = document.querySelector("audio");
+    		if (audio) {
+      			const playedPercentage = (audio.currentTime / audio.duration) * 100;
+      			updateSongPlaybackStats(currentSong._id, playedPercentage < 80);
+				
+    		}
+  		}
 
 		if (isShuffle) {
 			
@@ -107,6 +152,13 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 			);
 
 			if (unplayedSongs.length === 0) {
+				const socket = chatStore.getState().socket;
+			if (socket.auth) {
+				socket.emit("update_activity", {
+					userId: socket.auth.userId,
+					activity: `Idle`,
+				});
+			}
 				set({ isPlaying: false });
 				return;
 			}
@@ -117,10 +169,24 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 				isPlaying: true,
 				playedSongs: [...playedSongs, nextSong._id],
 			});
+		const socket = chatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity: `${nextSong.songTitle} by ${nextSong.songAuthor?.name}`,
+			});
+		}
 		} else {
 			const nextIndex = currentIndex + 1;
 			const nextSong = queue[nextIndex];
 
+			const socket = chatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity: `${nextSong.songTitle} by ${nextSong.songAuthor?.name}`,
+			});
+		}
 			if (nextSong) {
 				set({ 
 					currentSong: nextSong, 
@@ -135,7 +201,13 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 
 		if (prevIndex >= 0) {
 			const prevSong = queue[prevIndex];
-
+			const socket = chatStore.getState().socket;
+		if (socket.auth) {
+			socket.emit("update_activity", {
+				userId: socket.auth.userId,
+				activity: `${prevSong.songTitle} by ${prevSong.songAuthor?.name}`,
+			});
+		}
 			set({
 				currentSong: prevSong,
 				currentIndex: prevIndex,
@@ -144,9 +216,28 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 		} else {
 	
 			set({ isPlaying: false });
+			const socket = chatStore.getState().socket;
+			if (socket.auth) {
+				socket.emit("update_activity", {
+					userId: socket.auth.userId,
+					activity: `Idle`,
+				});
+			}
 
 			
 		}
 	},
 	resetPlayed: () => set({ playedSongs: [] }),
 }));
+
+export const updateSongPlaybackStats =  async (songId: string, skipped: boolean) => {
+  try {
+    const response = await axiosInstance.post("/users/playback", {
+      songId,
+      skipped
+    });
+    console.log("Playback stats updated:", response.data);
+  } catch (error) {
+    console.error("Error updating playback stats:", error);
+  }
+}

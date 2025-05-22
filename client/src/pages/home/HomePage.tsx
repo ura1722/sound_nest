@@ -1,6 +1,7 @@
 import Topbar from "@/components/Topbar"
 import { ScrollArea } from "@/components/ui/scroll-area";
-import FeaturedGrid from "@/layout/components/FeaturedGrid";
+import DiscoverGrid from "@/layout/components/DiscoverGrid";
+
 import SectionGrid from "@/layout/components/SectionGrid";
 import { musicStore } from "@/stores/musicStore";
 import { playerStore } from "@/stores/playerStore";
@@ -10,37 +11,41 @@ function HomePage() {
   const {
 		fetchFeaturedSongs,
 		fetchMadeForYouSongs,
-		fetchTrendingSongs,
+		fetchDiscoverSongs,
 		isLoading,
 		madeForYouSongs,
 		featuredSongs,
-		trendingSongs,
+		discoverSongs,
 	} = musicStore();
 	const { initializeQueue } = playerStore();
 	useEffect(() => {
 		fetchFeaturedSongs();
 		fetchMadeForYouSongs();
-		fetchTrendingSongs();
-	}, [fetchFeaturedSongs, fetchMadeForYouSongs, fetchTrendingSongs]);
+		fetchDiscoverSongs();
+	}, [fetchFeaturedSongs, fetchMadeForYouSongs, fetchDiscoverSongs]);
 
 	useEffect(() => {
-		if (madeForYouSongs.length > 0 && featuredSongs.length > 0 && trendingSongs.length > 0) {
-			const allSongs = [...featuredSongs, ...madeForYouSongs, ...trendingSongs];
+		if (madeForYouSongs.length > 0 && featuredSongs.length > 0 && discoverSongs.length > 0) {
+			const allSongs = [...featuredSongs, ...madeForYouSongs, ...discoverSongs];
 			initializeQueue(allSongs);
 		}
-	}, [initializeQueue, madeForYouSongs, trendingSongs, featuredSongs]);
+	}, [initializeQueue, madeForYouSongs, discoverSongs, featuredSongs]);
 
 	return (
 		<main className='rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-800 to-zinc-900'>
 			<Topbar />
 			<ScrollArea className='h-[calc(100vh-180px)]'>
 				<div className='p-4 sm:p-6'>
-					<h1 className='text-2xl sm:text-3xl font-bold mb-6'>Good afternoon</h1>
-					<FeaturedGrid />
+					<h1 className='text-2xl sm:text-3xl font-bold mb-6'>Home</h1>
+
+					{discoverSongs.length > 0 &&
+					<DiscoverGrid />
+					}
+					
 
 					<div className='space-y-8'>
 						<SectionGrid title='Made For You' songs={madeForYouSongs} isLoading={isLoading} />
-						<SectionGrid title='Trending' songs={trendingSongs} isLoading={isLoading} />
+						<SectionGrid title='Featured' songs={featuredSongs} isLoading={isLoading} />
 					</div>
 				</div>
 			</ScrollArea>

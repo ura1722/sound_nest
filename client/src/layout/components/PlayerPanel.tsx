@@ -68,7 +68,7 @@ function PlayerPanel() {
 									{currentSong.songTitle}
 								</div>
 								<div className='text-sm text-zinc-400 truncate hover:underline cursor-pointer'>
-									{currentSong.songAuthor}
+									{currentSong.songAuthor?.name}
 								</div>
 							</div>
 						</>
