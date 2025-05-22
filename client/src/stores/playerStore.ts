@@ -180,14 +180,15 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 			const nextIndex = currentIndex + 1;
 			const nextSong = queue[nextIndex];
 
-			const socket = chatStore.getState().socket;
+			
+			if (nextSong) {
+				const socket = chatStore.getState().socket;
 		if (socket.auth) {
 			socket.emit("update_activity", {
 				userId: socket.auth.userId,
 				activity: `${nextSong.songTitle} by ${nextSong.songAuthor?.name}`,
 			});
 		}
-			if (nextSong) {
 				set({ 
 					currentSong: nextSong, 
 					isPlaying: true,
