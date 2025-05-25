@@ -58,7 +58,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
     removeFriend: async (userId: string) => {
     try {
       await axiosInstance.delete(`/users/delete-friend/${userId}`);
-      // Оновити список друзів після додавання
+      
       const response = await axiosInstance.get('/users/friends');
       set({ users: response.data });
     } catch (error) {
@@ -70,7 +70,7 @@ export const chatStore = create<ChatStore>((set, get) => ({
     addFriend: async (userId: string) => {
     try {
       await axiosInstance.post(`/users/add-friend`, { friendId: userId });
-      // Оновити список друзів після додавання
+      
       const response = await axiosInstance.get('/users/friends');
       set({ users: response.data });
     } catch (error) {

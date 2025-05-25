@@ -37,13 +37,13 @@ function ChatPage() {
 			<div className='grid lg:grid-cols-[300px_1fr] grid-cols-[80px_1fr] h-[calc(100vh-180px)]'>
 				<FriendsTable />
 
-				{/* chat message */}
+				
 				<div className='flex flex-col h-full'>
 					{selectedUser ? (
 						<>
 							<Header />
 
-							{/* Messages */}
+							
 							<ScrollArea className='h-[calc(100vh-340px)]'>
 								<div className='p-4 space-y-4'>
 									{messages.map((message) => (

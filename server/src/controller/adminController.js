@@ -209,12 +209,10 @@ export const updateAuthor = async (req, res, next) => {
         const { name, genres, moods, decades } = req.body;
         let imageUrl = null;
 
-        // Обробка зображення, якщо воно було завантажене
         if (req.files && req.files.imageFile) {
             imageUrl = await uploadCloudinary(req.files.imageFile);
         }
 
-        // Обробка масивів даних
         let genresArray = genres;
         let moodsArray = moods;
         let decadesArray = decades;
@@ -237,7 +235,6 @@ export const updateAuthor = async (req, res, next) => {
             decadesArray = decades;
         }
 
-        // Підготовка даних для оновлення
         const updateData = {
             name,
             genres: genresArray,
@@ -245,16 +242,14 @@ export const updateAuthor = async (req, res, next) => {
             decades: decadesArray
         };
 
-        // Додаємо URL зображення до оновлення, якщо воно було змінене
         if (imageUrl) {
             updateData.imageUrl = imageUrl;
         }
 
-        // Оновлення автора
         const updatedAuthor = await Author.findByIdAndUpdate(
             id,
             updateData,
-            { new: true } // Повертає оновлений документ
+            { new: true } 
         );
 
         if (!updatedAuthor) {
