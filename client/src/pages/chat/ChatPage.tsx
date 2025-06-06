@@ -65,7 +65,7 @@ function ChatPage() {
 
 											<div
 												className={`rounded-lg p-3 max-w-[70%]
-													${message.senderId === user?.id ? "bg-green-500" : "bg-zinc-800"}
+													${message.senderId === user?.id ? "bg-zinc-600" : "bg-zinc-700"}
 												`}
 											>
 												<p className='text-sm'>{message.content}</p>
@@ -95,8 +95,8 @@ const NoConversationPlaceholder = () => (
 	<div className='flex flex-col items-center justify-center h-full space-y-6'>
 		
 		<div className='text-center'>
-			<h3 className='text-zinc-300 text-lg font-medium mb-1'>No conversation selected</h3>
-			<p className='text-zinc-500 text-sm'>Choose a friend to start chatting</p>
+			<h3 className='text-zinc-300 text-lg font-medium mb-1'>Не вибрано жодної розмови</h3>
+			<p className='text-zinc-500 text-sm'>Виберіть друга, щоб почати розмову</p>
 		</div>
 	</div>
 );

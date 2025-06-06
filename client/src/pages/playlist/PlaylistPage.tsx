@@ -3,16 +3,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { musicStore } from "@/stores/musicStore";
 import { playerStore } from "@/stores/playerStore";
 
-import { CirclePause, Clock, MoreVertical, Pause, Play } from "lucide-react";
+import { CirclePause, Clock, Heart, MoreVertical, Pause, Play } from "lucide-react";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import { Song } from "@/types";
 import { playlistStore } from "@/stores/playlistStore";
 
@@ -24,13 +24,18 @@ const formatDuration = (seconds: number) => {
 
 function PlaylistPage() {
   const { id } = useParams();
-  const { isLoading } = musicStore();
+  const navigate = useNavigate();
+  const { isLoading, likedSongs, toggleLikeSong  } = musicStore();
   const { currentSong, isPlaying, playPlaylist, togglePlay } = playerStore();
   const { currentPlaylist, fetchPlaylistById, removeSongFromPlaylist } = playlistStore();
 
   useEffect(() => {
     if (id) fetchPlaylistById(id);
   }, [fetchPlaylistById, id]);
+
+  useEffect(() => {
+  musicStore.getState().fetchLikedSongs();
+}, []);
 
   if (isLoading) return null;
 
@@ -44,6 +49,16 @@ function PlaylistPage() {
       togglePlay();
     } else {
       playPlaylist(currentPlaylist?.playlistSongs, 0);
+    }
+  };
+  const handleLikeSong = async (song: Song) => {
+    try {
+      const wasLiked = likedSongs.some(likedSong => likedSong._id === song._id);
+      await toggleLikeSong(song._id);
+      toast.success(wasLiked ? "Song unliked" : "Song liked");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to toggle like status");
     }
   };
 
@@ -90,11 +105,11 @@ function PlaylistPage() {
                 className='w-[240px] h-[240px] shadow-xl rounded object-cover'
               />
               <div className='flex flex-col justify-end'>
-                <p className='text-sm font-medium'>Playlist</p>
+                <p className='text-sm font-medium'>Плейліст</p>
                 <h1 className='text-7xl font-bold my-4'>{currentPlaylist?.playlistTitle}</h1>
                 <div className='flex items-center gap-2 text-sm text-zinc-100'>
                   
-                  <span>• {currentPlaylist?.playlistSongs.length} songs</span>
+                  <span>• {currentPlaylist?.playlistSongs.length} пісень</span>
                 </div>
               </div>
             </div>
@@ -124,8 +139,8 @@ function PlaylistPage() {
                 text-zinc-400 border-b border-white/5'
               >
                 <div>#</div>
-                <div>Title</div>
-                <div>Album</div>
+                <div>Назва</div>
+                <div>Альбом</div>
                 <div className="flex items-center">
                   <Clock className='h-4 w-4' />
                 </div>
@@ -137,6 +152,7 @@ function PlaylistPage() {
                 <div className='space-y-2 py-4'>
                   {currentPlaylist?.playlistSongs.map((song: Song, index: number) => {
                     const isCurrentSong = currentSong?._id === song._id;
+                     const isLiked = likedSongs.some(likedSong => likedSong._id === song._id);
                     return (
                       <div
                         key={song._id}
@@ -178,11 +194,27 @@ function PlaylistPage() {
                         </div>
                         
                         <div 
-        className='flex items-center'
-        onClick={() => handlePlaySong(index)}
-      >
-        {song.albumId?.albumTitle || 'Single'}
-      </div>
+                            className="flex items-center"
+                            onClick={() => song.albumId && navigate(`/albums/${song.albumId._id}`)}
+                          >
+                            {song.albumId ? (
+                              <Link 
+                                to={`/albums/${song.albumId._id}`} 
+                                className="hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {song.albumId.albumTitle}
+                              </Link>
+                            ) : (
+                              <Link 
+                                to={`/authors/${song.songAuthor?._id}`} 
+                                className="hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Сингл
+                              </Link>
+                            )}
+                          </div>
                         
                         <div 
                           className='flex items-center'
@@ -192,6 +224,18 @@ function PlaylistPage() {
                         </div>
                         
                         <div className='flex items-center justify-end'>
+                          <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleLikeSong(song);
+                                  }}
+                                  className={`p-1 rounded-full transition-colors ${isLiked ? 'text-red-500' : 'text-white/50 hover:text-white'}`}
+                                >
+                                  <Heart
+                                    size={20} 
+                                    fill={isLiked ? 'currentColor' : 'none'} 
+                                  />
+                                </button>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
@@ -207,7 +251,7 @@ function PlaylistPage() {
                                 className="hover:bg-zinc-800 cursor-pointer text-red-400"
                                 onClick={() => handleRemoveSong(song._id)}
                               >
-                                Remove from playlist
+                                Видалити
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -221,6 +265,7 @@ function PlaylistPage() {
           </div>
         </div>
       </ScrollArea>
+      <Toaster/>
     </div>
   );
 }

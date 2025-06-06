@@ -65,7 +65,7 @@ export function LikedSongsPage() {
   const handleToggleLike = async (songId: string) => {
     try {
       await toggleLikeSong(songId);
-      // Refresh the liked songs list after unlike
+      
       fetchLikedSongs();
     } catch (error) {
       console.error("Error toggling like:", error);
@@ -76,30 +76,30 @@ export function LikedSongsPage() {
     <div className="h-full">
       <ScrollArea className="h-full rounded-md">
         <div className="relative min-h-full">
-          {/* Gradient background */}
+          
           <div
             className="absolute inset-0 bg-gradient-to-b from-[#5038a0]/80 via-zinc-900/80 to-zinc-900 pointer-events-none"
             aria-hidden="true"
           />
 
-          {/* Content */}
+          
           <div className="relative z-10">
-            {/* Header */}
+            
             <div className="flex p-6 gap-6 pb-8 items-end">
               <div className="w-[240px] h-[240px] bg-gradient-to-br from-purple-600 to-pink-500 shadow-xl rounded flex items-center justify-center">
                 <Heart className="w-24 h-24 text-white" />
               </div>
               <div className="flex flex-col justify-end">
-                <p className="text-sm font-medium">Playlist</p>
-                <h1 className="text-7xl font-bold my-4">Liked Songs</h1>
+                <p className="text-sm font-medium">Список відтворення</p>
+                <h1 className="text-7xl font-bold my-4">Вподобані</h1>
                 <div className="flex items-center gap-2 text-sm text-zinc-100">
-                  <span className="font-medium text-white">Your favorites</span>
+                  <span className="font-medium text-white">Ваші улюблені</span>
                   <span>• {likedSongsData.length} songs</span>
                 </div>
               </div>
             </div>
 
-            {/* Play button */}
+            
             <div className="px-6 pb-4 flex items-center gap-6">
               <Button
                 onClick={handlePlayAll}
@@ -115,20 +115,20 @@ export function LikedSongsPage() {
               </Button>
             </div>
 
-            {/* Songs list */}
+            
             <div className="bg-black/20 backdrop-blur-sm">
-              {/* Table header */}
+              
               <div className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 px-10 py-2 text-sm text-zinc-400 border-b border-white/5">
                 <div>#</div>
-                <div>Title</div>
-                <div>Album</div>
+                <div>Назва</div>
+                <div>Альбом</div>
                 
                 <div className="flex items-center justify-end">
                   <Clock className="h-4 w-4" />
                 </div>
               </div>
 
-              {/* Songs */}
+              
               <div className="px-6">
                 {isLoading ? (
                   <div className="flex justify-center py-8">
@@ -136,7 +136,7 @@ export function LikedSongsPage() {
                   </div>
                 ) : likedSongsData.length === 0 ? (
                   <div className="text-center py-12 text-zinc-400">
-                    You haven't liked any songs yet
+                    Нема вподобань
                   </div>
                 ) : (
                   <div className="space-y-2 py-4">
@@ -149,7 +149,7 @@ export function LikedSongsPage() {
                           key={song._id}
                           className="grid grid-cols-[16px_6fr_4fr_3fr_1fr] gap-4 px-4 py-2 text-sm text-zinc-400 hover:bg-white/5 rounded-md group cursor-pointer"
                         >
-                          {/* Track number/play button */}
+                          
                           <div 
                             className="flex items-center justify-center"
                             onClick={() => handlePlaySong(song)}
@@ -167,7 +167,7 @@ export function LikedSongsPage() {
                             )}
                           </div>
 
-                          {/* Song title and artist */}
+                          
                           <div 
                             className="flex items-center gap-3"
                             onClick={() => handlePlaySong(song)}
@@ -185,7 +185,6 @@ export function LikedSongsPage() {
                             </div>
                           </div>
 
-                          {/* Album */}
                           <div 
                             className="flex items-center"
                             onClick={() => song.albumId && navigate(`/albums/${song.albumId._id}`)}
@@ -199,13 +198,19 @@ export function LikedSongsPage() {
                                 {song.albumId.albumTitle}
                               </Link>
                             ) : (
-                              <span>Single</span>
+                              <Link 
+                                to={`/authors/${song.songAuthor?._id}`} 
+                                className="hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Сингл
+                              </Link>
                             )}
                           </div>
 
                           
 
-                          {/* Duration and like button */}
+                          
                           <div className="flex items-center justify-end gap-4">
                             <span>{formatDuration(song.songDuration)}</span>
                             <Button

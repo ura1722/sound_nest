@@ -18,6 +18,8 @@ import { Heart } from "lucide-react";
 import DiscoverGridTemplate from "@/components/templates/DiscoverGridTemplate";
 import { AddToPlaylistDialog } from "@/components/AddToPlaylistDialog";
 import { playlistStore } from "@/stores/playlistStore";
+import { useNavigate } from "react-router-dom";
+import { useAuthGoogle } from "@/hooks/useAuth";
 
 function DiscoverGrid() {
   const { isLoading, discoverSongs, error, likedSongs, toggleLikeSong } = musicStore();
@@ -25,7 +27,8 @@ function DiscoverGrid() {
   const { playlists, addSongToPlaylist } = playlistStore();
   
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
-  
+  const navigate = useNavigate();
+  const { signInGoogle } = useAuthGoogle();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   useEffect(() => {
   musicStore.getState().fetchLikedSongs();
@@ -39,7 +42,14 @@ function DiscoverGrid() {
       toast.success(wasLiked ? "Song unliked" : "Song liked");
     } catch (error) {
       console.log(error);
-      toast.error("Failed to toggle like status");
+      signInGoogle();
+    }
+  };
+  const handleSongClick = (song: Song) => {
+    if (song.albumId) {
+      navigate(`/albums/${song.albumId}`);
+    } else if (song.songAuthor?._id) {
+      navigate(`/authors/${song.songAuthor._id}`);
     }
   };
 
@@ -47,7 +57,7 @@ function DiscoverGrid() {
   if (error) return <p className='text-red-500 mb-4 text-lg'>{error}</p>;
 
   return (
-    <>  <h1 className='text-xl sm:text-2xl font-bold mb-5'>Discover</h1>
+    <>  <h1 className='text-xl sm:text-2xl font-bold mb-5'>Вам може сподобатися</h1>
             <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8'>
         {discoverSongs.map((song: Song) => {
           const isCurrentSong = currentSong?._id === song._id;
@@ -63,6 +73,7 @@ function DiscoverGrid() {
                   <div
                     className='flex items-center bg-zinc-800/50 rounded-md overflow-hidden
                     hover:bg-zinc-700/50 transition-colors group cursor-pointer relative'
+                    onClick={() => handleSongClick(song)}
                   >
                     <img
                       src={song.songImgUrl}
@@ -78,12 +89,12 @@ function DiscoverGrid() {
                     <PlayButton song={song} />
                   </div>
                 </ContextMenuTrigger>
-                <ContextMenuContent className="w-40 bg-zinc-900 border-zinc-700">
+                <ContextMenuContent className="w-60 bg-zinc-900 border-zinc-700">
                   <ContextMenuItem 
                     onClick={() => handleLikeSong(song)}
                     className="hover:bg-zinc-800 cursor-pointer"
                   >
-                    {isLiked ? "Unlike song" : "Like song"}
+                    {isLiked ? "Видалити з улюблених" : "Додати до улюблених"}
                   </ContextMenuItem>
                   <ContextMenuItem 
                     onClick={() => {
@@ -92,12 +103,12 @@ function DiscoverGrid() {
                     }}
                     className="hover:bg-zinc-800 cursor-pointer"
                   >
-                    Add to playlist
+                    Додати до списку відтворення
                   </ContextMenuItem>
                 </ContextMenuContent>
               </ContextMenu>
               
-              {/* Heart icon for liked songs */}
+              
               <button
                 onClick={() => handleLikeSong(song)}
                 className={`absolute top-2 right-2 p-1 rounded-full transition-colors ${isLiked ? 'text-red-500' : 'text-white/50 hover:text-white'}`}
@@ -115,7 +126,7 @@ function DiscoverGrid() {
          
      
 
-      {/* Add to Playlist Dialog */}
+      
       <AddToPlaylistDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}

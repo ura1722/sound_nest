@@ -20,7 +20,7 @@ export function SearchPage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Використовуємо debounce для запобігання занадто частим запитам
+  
   const debouncedQuery = useDebounce(query, 500);
 
   useEffect(() => {
@@ -55,7 +55,7 @@ export function SearchPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-10 py-6 text-lg bg-zinc-800 border-zinc-700 focus-visible:ring-violet-500"
-          placeholder="Search for songs, albums or artists..."
+          placeholder="Шукайте пісні, альбоми та авторів..."
           autoFocus
         />
       </div>
@@ -79,7 +79,7 @@ export function SearchPage() {
 
       {!isLoading && query.length > 1 && results.length === 0 && (
         <div className="text-center py-12 text-zinc-400">
-          No results found for "{query}"
+          Нема результатів для "{query}"
         </div>
       )}
     </div>

@@ -97,6 +97,168 @@ export const getDiscoverSongs = async (req, res, next) => {
     next(error);
   }
 };
+export const getFriendsRecentlyPlayed = async (req, res, next) => {
+  try {
+    const currentUser = await User.findOne({ clerkId: req.auth.userId })
+      .populate({
+        path: 'friends',
+        select: 'userName recentlyPlayed',
+        match: { recentlyPlayed: { $exists: true, $ne: [] } }
+      });
+
+    if (!currentUser) {
+      return res.json([]);
+    }
+
+    // Collect all recently played songs from friends
+    let allFriendSongs = [];
+    
+    for (const friend of currentUser.friends) {
+      if (friend.recentlyPlayed?.length > 0) {
+        allFriendSongs.push(...friend.recentlyPlayed.map(played => ({
+          songId: played.song,
+          friendName: friend.userName
+        })));
+      }
+    }
+
+    if (allFriendSongs.length === 0) {
+      return res.json([]);
+    }
+
+    // Shuffle and select up to 4 songs
+    const selectedSongs = allFriendSongs
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 4)
+      .map(s => s.songId);
+
+    // Get full song data
+    let result = await Song.find({
+      _id: { $in: selectedSongs }
+    })
+    .populate('songAuthor', 'name')
+    .lean();
+
+    
+    if (result.length < 4) {
+      const needed = 4 - result.length;
+      const randomSongs = await Song.aggregate([
+        { $match: { _id: { $nin: result.map(s => s._id) } } },
+        { $sample: { size: needed } },
+        {
+          $lookup: {
+            from: "authors",
+            localField: "songAuthor",
+            foreignField: "_id",
+            as: "songAuthor"
+          }
+        },
+        { $unwind: "$songAuthor" },
+        {
+          $project: {
+            _id: 1,
+            songTitle: 1,
+            albumId: 1,
+            songImgUrl: 1,
+            songAudioUrl: 1,
+            songAuthor: {
+              name: 1
+            }
+          }
+        }
+      ]);
+
+      result = [...result, ...randomSongs];
+    }
+
+    
+    const formattedResult = result.slice(0, 4).map(song => ({
+      _id: song._id,
+      songTitle: song.songTitle,
+      songImgUrl: song.songImgUrl,
+      albumId: song.albumId,
+      songAudioUrl: song.songAudioUrl,
+      songAuthor: song.songAuthor
+    }));
+
+    res.json(formattedResult);
+  } catch (error) {
+    next(error);
+  }
+};
+export const addToRecentlyPlayed = async (req, res, next) => {
+  try {
+    const { songId } = req.params;
+    const userId = req.auth.userId;
+
+    // 1. Знаходимо користувача
+    const user = await User.findOne({ clerkId: userId });
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 2. Перевіряємо, чи пісня вже є в історії
+    const existingSongIndex = user.recentlyPlayed.findIndex(
+      item => item.song.toString() === songId
+    );
+
+    if (existingSongIndex !== -1) {
+      // 3. Якщо пісня вже є - оновлюємо час відтворення
+      user.recentlyPlayed[existingSongIndex].playedAt = new Date();
+      await user.save();
+    } else {
+      // 4. Якщо пісні немає - додаємо новий запис
+      await User.findOneAndUpdate(
+        { clerkId: userId },
+        {
+          $push: {
+            recentlyPlayed: {
+              $each: [{ song: songId, playedAt: new Date() }],
+              $slice: -20
+            }
+          }
+        }
+      );
+    }
+
+    res.status(200).json({ message: "Recently played updated" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getRecentlyPlayed = async (req, res, next) => {
+  try {
+    const userId = req.auth.userId;
+
+    const user = await User.findOne({ clerkId: userId })
+      .select('recentlyPlayed')
+      .populate({
+        path: 'recentlyPlayed.song',
+        populate: {
+          path: 'songAuthor',
+          select: 'name'
+        }
+      });
+
+    if (!user) {
+      return res.json({});
+    }
+
+    
+    const recentlyPlayed = user.recentlyPlayed
+      .sort((a, b) => b.playedAt - a.playedAt)
+      .map(item => ({
+        ...item.song.toObject(),
+        playedAt: item.playedAt
+      }));
+
+    res.json(recentlyPlayed);
+  } catch (error) {
+    next(error);
+  }
+};
 export const getRecommendedSongs = async (req, res, next) => {
   try {
     // Get current user with preferences
@@ -122,6 +284,7 @@ export const getRecommendedSongs = async (req, res, next) => {
             _id: 1,
             songTitle: 1,
             songImgUrl: 1,
+            albumId: 1,
             songAudioUrl: 1,
             songAuthor: {
               _id: "$authorData._id",
@@ -177,6 +340,7 @@ export const getRecommendedSongs = async (req, res, next) => {
           _id: 1,
           songTitle: 1,
           songImgUrl: 1,
+          albumId: 1,
           songAudioUrl: 1,
           songAuthor: {
             _id: "$authorData._id",
@@ -216,6 +380,7 @@ export const getFeatureSongs = async (req, res, next) => {
           $project: {
             _id: 1,
             songTitle: 1,
+            albumId: 1,
             songImgUrl: 1,
             songAudioUrl: 1,
             songAuthor: {
@@ -255,6 +420,7 @@ export const getFeatureSongs = async (req, res, next) => {
           $project: {
             _id: 1,
             songTitle: 1,
+            albumId: 1,
             songImgUrl: 1,
             songAudioUrl: 1,
             songAuthor: {

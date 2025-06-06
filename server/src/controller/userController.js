@@ -73,11 +73,11 @@ export const getUserFriends = async (req, res, next) => {
   try {
     const currentUserId = req.auth.userId;
     
-    // Знаходимо користувача з його друзями
+    
     const user = await User.findOne({ clerkId: currentUserId })
       .populate({
         path: 'friends',
-        select: '_id userName userImgUrl clerkId', // Обираємо тільки необхідні поля
+        select: '_id userName userImgUrl clerkId', 
       })
       .lean();
 
@@ -85,7 +85,7 @@ export const getUserFriends = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Форматуємо відповідь
+    
     const formattedFriends = user.friends?.map(friend => ({
       _id: friend._id.toString(),
       userName: friend.userName,
@@ -102,7 +102,7 @@ export const getUser = async (req, res, next) => {
   try {
     const currentUserId = req.auth.userId;
     
-    // Знаходимо користувача з його друзями
+    
     const user = await User.findOne({ clerkId: currentUserId })
       
 
@@ -118,7 +118,7 @@ export const toggleLikeSong = async (req, res, next) => {
     const { songId } = req.body;
     const currentUserId = req.auth.userId;
     
-    // Знаходимо користувача та пісню
+   
     const user = await User.findOne({ clerkId: currentUserId });
     const song = await Song.findById(songId)
       .populate('songAuthor')
@@ -127,11 +127,11 @@ export const toggleLikeSong = async (req, res, next) => {
     if (!user) return res.status(404).json({ message: "User not found" });
     if (!song) return res.status(404).json({ message: "Song not found" });
 
-    // Перевіряємо чи вже лайкнута пісня
+   
     const isLiked = user.likedSongs.some(id => id.toString() === songId);
-    const valueChange = isLiked ? -1 : 1; // +1 для лайку, -1 для зняття лайку
+    const valueChange = isLiked ? -1 : 1; 
 
-    // Оновлюємо список лайкнутих пісень
+    
     const updateOperation = isLiked 
       ? { $pull: { likedSongs: songId } }
       : { $addToSet: { likedSongs: songId } };
@@ -142,7 +142,7 @@ export const toggleLikeSong = async (req, res, next) => {
       { new: true }
     );
 
-    // Ініціалізуємо preferences якщо їх немає
+    
     if (!updatedUser.preferences) {
       updatedUser.preferences = {
         genres: new Map(),
@@ -152,26 +152,24 @@ export const toggleLikeSong = async (req, res, next) => {
       };
     }
 
-    // Оновлюємо характеристики на основі пісні
-    // Жанри
+    
     song.genres.forEach(genre => {
       const currentValue = updatedUser.preferences.genres.get(genre) || 0;
       updatedUser.preferences.genres.set(genre, Math.max(0, currentValue + valueChange));
     });
 
-    // Декада
+    
     if (song.decade) {
       const currentValue = updatedUser.preferences.decades.get(song.decade) || 0;
       updatedUser.preferences.decades.set(song.decade, Math.max(0, currentValue + valueChange));
     }
 
-    // Настрої
+   
     song.moods.forEach(mood => {
       const currentValue = updatedUser.preferences.moods.get(mood) || 0;
       updatedUser.preferences.moods.set(mood, Math.max(0, currentValue + valueChange));
     });
 
-    // Автор (якщо є)
     if (song.songAuthor) {
       const authorId = song.songAuthor._id.toString();
       const currentValue = updatedUser.preferences.artists.get(authorId) || 0;
@@ -216,7 +214,7 @@ export const updatePlaybackStats = async (req, res, next) => {
     const { songId, skipped } = req.body;
     const userId = req.auth.userId;
 
-    // Знаходимо пісню
+ 
     const song = await Song.findById(songId)
       .populate('songAuthor')
       .populate('albumId');
@@ -225,13 +223,13 @@ export const updatePlaybackStats = async (req, res, next) => {
       return res.status(404).json({ message: "Song not found" });
     }
 
-    // Знаходимо користувача
+    
     const user = await User.findOne({ clerkId: userId });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Ініціалізуємо preferences, якщо їх немає
+   
     if (!user.preferences) {
       user.preferences = {
         genres: new Map(),
@@ -244,7 +242,7 @@ export const updatePlaybackStats = async (req, res, next) => {
     
     const valueChange = skipped ? -1 : 1;
 
-    // Оновлюємо характеристики
+  
     song.genres.forEach(genre => {
       const currentValue = user.preferences.genres.get(genre) || 0;
       user.preferences.genres.set(genre, Math.max(0, currentValue + valueChange));
@@ -275,7 +273,7 @@ export const updatePlaybackStats = async (req, res, next) => {
 
 export const getLikedSongs = async (req, res, next) => {
   try {
-    // Знаходимо користувача з пов'язаними піснями
+   
     const user = await User.findOne({ clerkId: req.auth.userId })
       .populate({
         path: 'likedSongs',
@@ -299,7 +297,7 @@ export const getLikedSongs = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Форматуємо відповідь відповідно до інтерфейсу Song
+    
     const formattedSongs = user.likedSongs.map(song => ({
       _id: song._id.toString(),
       songTitle: song.songTitle,
@@ -352,16 +350,16 @@ export const addAuthors = async (req, res, next) => {
   try {
     const { authorIds } = req.body;
 
-    // Отримуємо вибраних авторів
+    
     const authors = await Author.find({ _id: { $in: authorIds } });
     
-    // Отримуємо користувача
+    
     const user = await User.findOne({ clerkId: req.auth.userId  });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Ініціалізуємо preferences, якщо їх немає
+    
     if (!user.preferences) {
       user.preferences = {
         genres: new Map(),
@@ -371,27 +369,27 @@ export const addAuthors = async (req, res, next) => {
       };
     }
 
-    // Оновлюємо переваги на основі авторів
+    
     for (const author of authors) {
-      // Додаємо +5 до жанрів автора
+      
       author.genres.forEach(genre => {
         const currentValue = user.preferences.genres.get(genre) || 0;
         user.preferences.genres.set(genre, currentValue + 5);
       });
 
-      // Додаємо +5 до декад автора
+     
       author.decades.forEach(decade => {
         const currentValue = user.preferences.decades.get(decade) || 0;
         user.preferences.decades.set(decade, currentValue + 5);
       });
 
-      // Додаємо +5 до настроїв автора
+      
       author.moods.forEach(mood => {
         const currentValue = user.preferences.moods.get(mood) || 0;
         user.preferences.moods.set(mood, currentValue + 5);
       });
 
-      // Додаємо автора до обраних
+     
       user.preferences.artists.set(author._id.toString(), 5);
     }
 

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { musicStore } from "@/stores/musicStore";
 import { Calendar, Library, Music, Trash2 } from "lucide-react";
@@ -19,9 +19,9 @@ function Albums() {
 					<div>
 						<CardTitle className='flex items-center gap-2'>
 							<Library className='h-5 w-5 text-violet-500' />
-							Albums Library
+							Альбоми
 						</CardTitle>
-						<CardDescription>Manage your album collection</CardDescription>
+						
 					</div>
 					<AddAlbumDialog />
 				</div>
@@ -32,11 +32,11 @@ function Albums() {
                     <TableHeader>
                         <TableRow className='hover:bg-zinc-800/50'>
                             <TableHead className='w-[50px]'></TableHead>
-                            <TableHead>Title</TableHead>
-                            <TableHead>Artist</TableHead>
-                            <TableHead>Release Year</TableHead>
-                            <TableHead>Songs</TableHead>
-                            <TableHead className='text-right'>Actions</TableHead>
+                            <TableHead>Назва</TableHead>
+                            <TableHead>Автор</TableHead>
+                            <TableHead>Реліз</TableHead>
+                            <TableHead>Пісні</TableHead>
+                            <TableHead className='text-right'>Дії</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -56,7 +56,7 @@ function Albums() {
                                 <TableCell>
                                     <span className='inline-flex items-center gap-1 text-zinc-400'>
                                         <Music className='h-4 w-4' />
-                                        {album.albumSongs.length} songs
+                                        {album.albumSongs.length} пісень
                                     </span>
                                 </TableCell>
                                 <TableCell className='text-right'>

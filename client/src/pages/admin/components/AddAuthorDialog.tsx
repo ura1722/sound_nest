@@ -68,13 +68,13 @@ function AddAuthorDialog() {
     const formData = new FormData();
     formData.append("name", newAuthor.name);
     
-    // Додаємо масиви тільки якщо вони не порожні
+    
     if (newAuthor.genres.length > 0) {
       newAuthor.genres.forEach(genre => {
-        formData.append("genres", genre); // Ключ без [] для NestJS
+        formData.append("genres", genre); 
       });
     } else {
-      formData.append("genres", ""); // Явно вказуємо порожнє значення
+      formData.append("genres", ""); 
     }
 
     if (newAuthor.decades.length > 0) {
@@ -121,16 +121,16 @@ function AddAuthorDialog() {
     <>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className='bg-emerald-500 hover:bg-emerald-600 text-black'>
+          <Button className='bg-orange-500 hover:bg-orange-600 text-black'>
             <Plus className='mr-2 h-4 w-4' />
-            Add Author
+            Додати автора
           </Button>
         </DialogTrigger>
 
         <DialogContent className='bg-zinc-900 border-zinc-700 max-h-[80vh] overflow-auto'>
           <DialogHeader>
-            <DialogTitle>Add New Author</DialogTitle>
-            <DialogDescription>Add a new author/band to your music library</DialogDescription>
+            <DialogTitle>Додати нового автора</DialogTitle>
+            <DialogDescription>Додати нового автора до бібліотеки</DialogDescription>
           </DialogHeader>
 
           <div className='space-y-4 py-4'>
@@ -150,7 +150,7 @@ function AddAuthorDialog() {
               <div className='text-center'>
                 {imageFile ? (
                   <div className='space-y-2'>
-                    <div className='text-sm text-emerald-500'>Image selected:</div>
+                    <div className='text-sm text-emerald-500'>Зображення вибрано:</div>
                     <div className='text-xs text-zinc-400'>{imageFile.name.slice(0, 20)}</div>
                   </div>
                 ) : (
@@ -158,9 +158,9 @@ function AddAuthorDialog() {
                     <div className='p-3 bg-zinc-800 rounded-full inline-block mb-2'>
                       <Upload className='h-6 w-6 text-zinc-400' />
                     </div>
-                    <div className='text-sm text-zinc-400 mb-2'>Upload author image</div>
+                    <div className='text-sm text-zinc-400 mb-2'>Завантажити зображення автора</div>
                     <Button variant='outline' size='sm' className='text-xs'>
-                      Choose File
+                      Вибрати файл
                     </Button>
                   </>
                 )}
@@ -169,18 +169,18 @@ function AddAuthorDialog() {
 
             {/* Name field */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Name</label>
+              <label className='text-sm font-medium'>Ім'я</label>
               <Input
                 value={newAuthor.name}
                 onChange={(e) => setNewAuthor({ ...newAuthor, name: e.target.value })}
                 className='bg-zinc-800 border-zinc-700'
-                placeholder="Author or band name"
+                placeholder="Ім'я автора"
               />
             </div>
 
             {/* Genres multi-select */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Genres</label>
+              <label className='text-sm font-medium'>Жанри</label>
               <MultipleSelector
                 value={newAuthor.genres.map(g => ({ value: g, label: g }))}
                 onChange={(options) => setNewAuthor({
@@ -188,17 +188,17 @@ function AddAuthorDialog() {
                   genres: options.map(o => o.value)
                 })}
                 defaultOptions={availableGenres}
-                placeholder="Select genres..."
+                placeholder="Вибрати жанри..."
                 creatable
                 emptyIndicator={
-                  <p className="text-center text-zinc-400">No genres found</p>
+                  <p className="text-center text-zinc-400">Нема жанрів</p>
                 }
               />
             </div>
 
             {/* Decades multi-select */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Active Decades</label>
+              <label className='text-sm font-medium'>Активні десятиліття</label>
               <MultipleSelector
                 value={newAuthor.decades.map(d => ({ value: d, label: d }))}
                 onChange={(options) => setNewAuthor({
@@ -206,16 +206,16 @@ function AddAuthorDialog() {
                   decades: options.map(o => o.value)
                 })}
                 defaultOptions={availableDecades}
-                placeholder="Select decades..."
+                placeholder="Вибрати десятиліття..."
                 emptyIndicator={
-                  <p className="text-center text-zinc-400">No decades found</p>
+                  <p className="text-center text-zinc-400">Нема десятилітть</p>
                 }
               />
             </div>
 
             {/* Moods multi-select */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Moods</label>
+              <label className='text-sm font-medium'>Настрої</label>
               <MultipleSelector
                 value={newAuthor.moods.map(m => ({ value: m, label: m }))}
                 onChange={(options) => setNewAuthor({
@@ -223,9 +223,9 @@ function AddAuthorDialog() {
                   moods: options.map(o => o.value)
                 })}
                 defaultOptions={availableMoods}
-                placeholder="Select moods..."
+                placeholder="Вибрати настрої..."
                 emptyIndicator={
-                  <p className="text-center text-zinc-400">No moods found</p>
+                  <p className="text-center text-zinc-400">Нема настроїв</p>
                 }
               />
             </div>
@@ -236,7 +236,7 @@ function AddAuthorDialog() {
               Cancel
             </Button>
             <Button onClick={handleSubmit} disabled={isLoading || !newAuthor.name || !imageFile}>
-              {isLoading ? "Creating..." : "Add Author"}
+              {isLoading ? "Створення..." : "Додати автора"}
             </Button>
           </DialogFooter>
         </DialogContent>

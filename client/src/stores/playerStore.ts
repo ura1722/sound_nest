@@ -20,6 +20,7 @@ interface PlayerStore {
 	playNext: () => void;
 	playPrevious: () => void;
 	resetPlayed: () => void;
+	
 }
 
 export const playerStore = create<PlayerStore>((set, get) => ({
@@ -37,12 +38,15 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 			currentIndex: get().currentIndex === -1 ? 0 : get().currentIndex,
 		});
 	},
+	
 
 	playAlbum: (songs: Song[], startIndex = 0) => {
 		if (songs.length === 0) return;
 
 		const song = songs[startIndex];
 		const { isShuffle } = get();
+
+		sendPlaybackEvent(song._id);
 
 		const socket = chatStore.getState().socket;
 		if (socket.auth) {
@@ -66,6 +70,8 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 
 		const song = songs[startIndex];
 		const { isShuffle } = get();
+
+		sendPlaybackEvent(song._id);
 
 		const socket = chatStore.getState().socket;
 		if (socket.auth) {
@@ -91,6 +97,8 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 		const songIndex = get().queue.findIndex((s) => s._id === song._id);
 		const { isShuffle } = get();
 
+		sendPlaybackEvent(song._id);
+
 		const socket = chatStore.getState().socket;
 		if (socket.auth) {
 			socket.emit("update_activity", {
@@ -109,6 +117,11 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 	togglePlay: () => {
 		const currentSong = get().currentSong;
 		const willStartPlaying = !get().isPlaying;
+
+		if (willStartPlaying && currentSong) {
+      
+          sendPlaybackEvent(currentSong._id);
+    	}
 
 		const socket = chatStore.getState().socket;
 		if (socket.auth) {
@@ -164,6 +177,8 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 			}
 
 			const nextSong = unplayedSongs[Math.floor(Math.random() * unplayedSongs.length)];
+
+			sendPlaybackEvent(nextSong._id);
 			set({
 				currentSong: nextSong,
 				isPlaying: true,
@@ -182,6 +197,7 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 
 			
 			if (nextSong) {
+				sendPlaybackEvent(nextSong._id);
 				const socket = chatStore.getState().socket;
 		if (socket.auth) {
 			socket.emit("update_activity", {
@@ -202,6 +218,8 @@ export const playerStore = create<PlayerStore>((set, get) => ({
 
 		if (prevIndex >= 0) {
 			const prevSong = queue[prevIndex];
+
+			sendPlaybackEvent(prevSong._id);
 			const socket = chatStore.getState().socket;
 		if (socket.auth) {
 			socket.emit("update_activity", {
@@ -242,3 +260,12 @@ export const updateSongPlaybackStats =  async (songId: string, skipped: boolean)
     console.error("Error updating playback stats:", error);
   }
 }
+
+const sendPlaybackEvent = async (songId: string) => {
+    try {
+      await axiosInstance.post(`/songs/${songId}/listen`);
+      console.log("Playback event sent for song:", songId);
+    } catch (error) {
+      console.error("Error sending playback event:", error);
+    }
+  }

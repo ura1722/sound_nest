@@ -8,28 +8,28 @@ function Dashboard() {
 	const statsData = [
 		{
 			icon: ListMusic,
-			label: "Total Songs",
+			label: "Всього пісень",
 			value: stats.totalSongs.toString(),
 			bgColor: "bg-emerald-500/10",
 			iconColor: "text-emerald-500",
 		},
 		{
 			icon: Library,
-			label: "Total Albums",
+			label: "Всього альбомів",
 			value: stats.totalAlbums.toString(),
 			bgColor: "bg-violet-500/10",
 			iconColor: "text-violet-500",
 		},
 		{
 			icon: Users2,
-			label: "Total Artists",
+			label: "Всього авторів",
 			value: stats.totalAuthors.toString(),
 			bgColor: "bg-orange-500/10",
 			iconColor: "text-orange-500",
 		},
 		{
 			icon: PlayCircle,
-			label: "Total Users",
+			label: "Всього користувачів",
 			value: stats.totalUsers.toLocaleString(),
 			bgColor: "bg-sky-500/10",
 			iconColor: "text-sky-500",

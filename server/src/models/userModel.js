@@ -93,6 +93,16 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Song' 
   }],
+  recentlyPlayed: [{
+    song: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Song'
+    },
+    playedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   preferences: {
     type: preferenceSchema,
     default: () => ({})

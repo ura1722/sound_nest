@@ -2,24 +2,28 @@ import AddFriendButton from "@/components/AddFriendButton"
 import Playlist from "@/components/templates/Playlist"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { DialogTrigger, Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useAuthGoogle } from "@/hooks/useAuth"
 import { axiosInstance } from "@/lib/axios"
 import { cn } from "@/lib/utils"
 import { playlistStore } from "@/stores/playlistStore"
+import { useAuth } from "@clerk/clerk-react"
 
 
 
 
-import { Heart, HomeIcon, Library, Plus, Search, User2 } from "lucide-react"
+import {  EllipsisVertical, Heart, HomeIcon, Library, Plus, Search, Trash2, User2 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast"
 import { Link } from "react-router-dom"
 
 function SidebarMenu() {
     
-	const { playlists, fetchPlaylists, isLoading } = playlistStore();
-
+	const { playlists, fetchPlaylists, isLoading, deletePlaylist } = playlistStore();
+  const { isSignedIn } = useAuth();
+  const { signInGoogle } = useAuthGoogle();
 	useEffect(() => {
 		fetchPlaylists();
 	}, [fetchPlaylists]);
@@ -32,6 +36,24 @@ function SidebarMenu() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+  const handleDeletePlaylist = async (playlistId: string) => {
+    try {
+      await deletePlaylist(playlistId);
+      
+      fetchPlaylists(); // Refresh the list after deletion
+    } catch (error) {
+      console.error("Error deleting playlist:", error);
+      toast.error("Failed to delete playlist");
+    }
+  };
+
+  const checkAuth = () => {
+    if (!isSignedIn) {
+      signInGoogle();
+      return false;
+    }
+    return true;
+  };
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -60,6 +82,7 @@ function SidebarMenu() {
       setPlaylistDialogOpen(false);
       toast.success("Playlist created successfully");
       // You might want to refresh playlists here if you have them in your store
+      await fetchPlaylists();
     } catch (error: any) {
       toast.error("Failed to create playlist: " + error.message);
     } finally {
@@ -82,7 +105,7 @@ function SidebarMenu() {
 						)}
 					>
 						<HomeIcon className='mr-2 size-5' />
-						<span className='hidden md:inline'>Home</span>
+						<span className='hidden md:inline'>Головна</span>
 					</Link>
           <Link
             to="/search"
@@ -94,7 +117,7 @@ function SidebarMenu() {
             )}
           >
             <Search className='mr-2 size-5' />
-            <span className='hidden md:inline'>Search</span>
+            <span className='hidden md:inline'>Пошук</span>
           </Link>
           <Link
             to="/liked"
@@ -106,7 +129,7 @@ function SidebarMenu() {
             )}
           >
             <Heart className='mr-2 size-5' />
-            <span className='hidden md:inline'>Liked</span>
+            <span className='hidden md:inline'>Вподобані</span>
           </Link>
           <Link
             to="/chat"
@@ -118,12 +141,16 @@ function SidebarMenu() {
             )}
           >
             <User2 className='mr-2 size-5' />
-            <span className='hidden md:inline'>Chat</span>
+            <span className='hidden md:inline'>Чат</span>
           </Link>
-          <AddFriendButton />
+          
+            <AddFriendButton />
+          
+          
 					<Dialog open={playlistDialogOpen} onOpenChange={setPlaylistDialogOpen}>
             <DialogTrigger asChild>
               <button
+                onClick={checkAuth}
                 className={cn(
                   buttonVariants({
                     variant: "ghost",
@@ -132,14 +159,14 @@ function SidebarMenu() {
                 )}
               >
                 <Plus className='mr-2 size-5' />
-                <span className='hidden md:inline'>Create Playlist</span>
+                <span className='hidden md:inline'>Новий плейліст</span>
               </button>
             </DialogTrigger>
             <DialogContent className='bg-zinc-900 border-zinc-700'>
               <DialogHeader>
-                <DialogTitle>Create New Playlist</DialogTitle>
+                <DialogTitle>Створити новий плейліст</DialogTitle>
                 <DialogDescription>
-                  Give your playlist a name and optional cover image
+                  Введіть назву плейлісту та загрузіть обкладку
                 </DialogDescription>
               </DialogHeader>
               <div className='space-y-4 py-4'>
@@ -160,20 +187,20 @@ function SidebarMenu() {
                       <Plus className='h-6 w-6 text-zinc-400' />
                     </div>
                     <div className='text-sm text-zinc-400 mb-2'>
-                      {imageFile ? imageFile.name : "Upload playlist cover (optional)"}
+                      {imageFile ? imageFile.name : "Завантажити обкладку (опціонально)"}
                     </div>
                     <Button variant='outline' size='sm' className='text-xs'>
-                      Choose File
+                      Вибрати файл
                     </Button>
                   </div>
                 </div>
                 <div className='space-y-2'>
-                  <label className='text-sm font-medium'>Playlist Name</label>
+                  <label className='text-sm font-medium'>Назва плейлісту</label>
                   <Input
                     value={newPlaylist.playlistTitle}
                     onChange={(e) => setNewPlaylist({ playlistTitle: e.target.value })}
                     className='bg-zinc-800 border-zinc-700'
-                    placeholder='Enter playlist name'
+                    placeholder='Введіть назву плейлісту'
                   />
                 </div>
               </div>
@@ -183,14 +210,14 @@ function SidebarMenu() {
                   onClick={() => setPlaylistDialogOpen(false)} 
                   disabled={isLoadingPlaylist}
                 >
-                  Cancel
+                  Скасувати
                 </Button>
                 <Button
                   onClick={handleCreatePlaylist}
                   className='bg-violet-500 hover:bg-violet-600'
                   disabled={isLoadingPlaylist || !newPlaylist.playlistTitle}
                 >
-                  {isLoadingPlaylist ? "Creating..." : "Create Playlist"}
+                  {isLoadingPlaylist ? "Створення..." : "Створити плейліст"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -199,41 +226,58 @@ function SidebarMenu() {
 				</div>
 			</div>
 
-			{/* Library section */}
+			
 			<div className='flex-1 rounded-lg bg-zinc-900 p-4'>
 				<div className='flex items-center justify-between mb-4'>
 					<div className='flex items-center text-white px-2'>
 						<Library className='size-5 mr-2' />
-						<span className='hidden md:inline'>Playlists</span>
+						<span className='hidden md:inline'>Плейлісти</span>
 					</div>
 				</div>
                 
                 <ScrollArea className='h-[calc(100vh-300px)]'>
-					<div className='space-y-2'>
-						{isLoading ? (
-							<Playlist />
-						) : (
-							playlists.map((playlist) => (
-								<Link
-									to={`/playlists/${playlist._id}`}
-									key={playlist._id}
-									className='p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer'
-								>
-									<img
-										src={playlist.playlistImgUrl}
-										alt='Playlist img'
-										className='size-12 rounded-md flex-shrink-0 object-cover'
-									/>
-
-									<div className='flex-1 min-w-0 hidden md:block'>
-										<p className='font-medium truncate'>{playlist.playlistTitle}</p>
-										
-									</div>
-								</Link>
-							))
-						)}
-					</div>
-				</ScrollArea>
+          <div className='space-y-2'>
+            {isLoading ? (
+              <Playlist />
+            ) : (
+              playlists.map((playlist) => (
+                <div key={playlist._id} className="group flex items-center hover:bg-zinc-800 rounded-md">
+                  <Link
+                    to={`/playlists/${playlist._id}`}
+                    className='p-2 flex items-center gap-3 flex-1'
+                  >
+                    <img
+                      src={playlist.playlistImgUrl}
+                      alt='Playlist img'
+                      className='size-12 rounded-md flex-shrink-0 object-cover'
+                    />
+                    <div className='flex-1 min-w-0 hidden md:block'>
+                      <p className='font-medium truncate'>{playlist.playlistTitle}</p>
+                    </div>
+                  </Link>
+                  
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="p-2 text-zinc-400 hover:text-white  transition-opacity">
+                        <EllipsisVertical className="h-4 w-4" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-40 bg-zinc-800 border-zinc-700">
+                      <DropdownMenuItem
+                        className="text-red-500 focus:text-red-500 focus:bg-zinc-700 cursor-pointer"
+                        onClick={() => handleDeletePlaylist(playlist._id)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Видалити
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              ))
+            )}
+          </div>
+        </ScrollArea>
 				
 			</div>
 		</div>

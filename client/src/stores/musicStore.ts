@@ -15,7 +15,9 @@ interface MusicStore {
 	featuredSongs: Song[];
 	madeForYouSongs: Song[];
 	discoverSongs: Song[];
+	friendsSongs: Song[];
 	stats: Stats;
+	recentlyPlayed:  Song[];
 
 	fetchAlbums: () => Promise<void>;
 	toggleLikeSong: (songId: string) => Promise<void>;
@@ -25,6 +27,8 @@ interface MusicStore {
 	fetchLikedSongs: () => Promise<void>;
 	fetchMadeForYouSongs: () => Promise<void>;
 	fetchDiscoverSongs: () => Promise<void>;
+	fetchRecentlyPlayed: () => Promise<void>;
+	fetchFriendsSongs: () => Promise<void>;
 	fetchStats: () => Promise<void>;
 	fetchAuthors: () => Promise<void>;
 	fetchSongs: () => Promise<void>;
@@ -47,6 +51,8 @@ export const musicStore = create<MusicStore>((set) => ({
 	currentAuthor: null,
 	madeForYouSongs: [],
 	featuredSongs: [],
+	friendsSongs: [],
+	recentlyPlayed: [],
 	discoverSongs: [],
 	stats: {
 		totalSongs: 0,
@@ -212,6 +218,28 @@ export const musicStore = create<MusicStore>((set) => ({
 		try {
 			const response = await axiosInstance.get("/songs/featured");
 			set({ featuredSongs: response.data });
+		} catch (error: any) {
+			set({ error: error.response.data.message });
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+	fetchFriendsSongs: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axiosInstance.get("/songs/friends-recently-played");
+			set({ friendsSongs: response.data });
+		} catch (error: any) {
+			set({ error: error.response.data.message });
+		} finally {
+			set({ isLoading: false });
+		}
+	},
+	fetchRecentlyPlayed: async () => {
+		set({ isLoading: true, error: null });
+		try {
+			const response = await axiosInstance.get("/songs/recently-played");
+			set({ recentlyPlayed: response.data });
 		} catch (error: any) {
 			set({ error: error.response.data.message });
 		} finally {

@@ -15,6 +15,7 @@ interface PlaylistStore {
     addSongToPlaylist: (playlistId: string, songId: string) => void;
     fetchPlaylistById: (id: string) => Promise<void>;
     removeSongFromPlaylist: (playlistId: string, songId: string) => Promise<void>;
+    deletePlaylist: (id: string) => Promise<void>;
     
 }
 
@@ -32,11 +33,26 @@ export const playlistStore = create<PlaylistStore>((set, get) => ({
             set({ playlists: response.data });
         } catch (error: any) {
             set({ error: error.response?.data?.message || error.message });
-            toast.error("Failed to fetch playlists");
+            
         } finally {
             set({ isLoading: false });
         }
     },
+    deletePlaylist: async (id) => {
+		set({ isLoading: true, error: null });
+		try {
+			await axiosInstance.delete(`/playlists/${id}`);
+			set({
+      playlists: get().playlists.filter(playlist => playlist._id !== id),
+      currentPlaylist: get().currentPlaylist?._id === id ? null : get().currentPlaylist
+    });
+			toast.success("Playlist deleted successfully");
+		} catch (error: any) {
+			toast.error("Failed to delete playlist: " + error.message);
+		} finally {
+			set({ isLoading: false });
+		}
+	},
     fetchPlaylistById: async (id: string) => {
         set({ isLoading: true, error: null });
         try {

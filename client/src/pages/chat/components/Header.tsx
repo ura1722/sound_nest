@@ -16,7 +16,7 @@ function Header() {
 				<div>
 					<h2 className='font-medium'>{selectedUser.userName}</h2>
 					<p className='text-sm text-zinc-400'>
-						{onlineUsers.has(selectedUser.clerkId) ? "Online" : "Offline"}
+						{onlineUsers.has(selectedUser.clerkId) ? "В мережі" : "Не в мережі"}
 					</p>
 				</div>
 			</div>

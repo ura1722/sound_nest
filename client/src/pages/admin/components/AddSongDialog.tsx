@@ -19,8 +19,8 @@ import MultipleSelector from "@/components/ui/multipleselect";
 
 interface NewSong {
   songTitle: string;
-  songAuthor: string; // Will store author ID
-  songAlbum: string; // Will store album ID
+  songAuthor: string; 
+  songAlbum: string; 
   songDuration: string;
   genres: string[];
   moods: string[];
@@ -50,7 +50,7 @@ function AddSongDialog() {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  // Options for multi-selects
+  
   const genreOptions = [
   "rock", "pop", "jazz", "electronic", "hiphop", 
   "classical", "reggae", "blues", "country", 
@@ -74,7 +74,7 @@ const moodOptions = [
 
     try {
       if (!files.audio || !files.image) {
-        return toast.error("Please upload both audio and image files");
+        return toast.error("Будь ласка, виберіть музиний файл і зображеня");
       }
 
       const formData = new FormData();
@@ -99,7 +99,7 @@ const moodOptions = [
         },
       });
 
-      // Reset form
+      
       setNewSong({
         songTitle: "",
         songAuthor: "",
@@ -118,7 +118,7 @@ const moodOptions = [
       setSongDialogOpen(false);
       toast.success("Song added successfully");
       
-      // Refresh songs list
+      
       await musicStore.getState().fetchSongs();
     } catch (error: any) {
       toast.error("Failed to add song: " + error.message);
@@ -133,18 +133,18 @@ const moodOptions = [
         <DialogTrigger asChild>
           <Button className='bg-emerald-500 hover:bg-emerald-600 text-black'>
             <Plus className='mr-2 h-4 w-4' />
-            Add Song
+            Додати пісню
           </Button>
         </DialogTrigger>
 
         <DialogContent className='bg-zinc-900 border-zinc-700 max-h-[80vh] overflow-auto'>
           <DialogHeader>
-            <DialogTitle>Add New Song</DialogTitle>
-            <DialogDescription>Add a new song to your music library</DialogDescription>
+            <DialogTitle>Додати нову пісню</DialogTitle>
+            <DialogDescription>Додати нову пісню до бібліотеки</DialogDescription>
           </DialogHeader>
 
           <div className='space-y-4 py-4'>
-            {/* File uploads */}
+            
             <input
               type='file'
               accept='audio/*'
@@ -161,7 +161,7 @@ const moodOptions = [
               onChange={(e) => setFiles((prev) => ({ ...prev, image: e.target.files![0] }))}
             />
 
-            {/* Image upload */}
+            
             <div
               className='flex items-center justify-center p-6 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer'
               onClick={() => imageInputRef.current?.click()}
@@ -169,7 +169,7 @@ const moodOptions = [
               <div className='text-center'>
                 {files.image ? (
                   <div className='space-y-2'>
-                    <div className='text-sm text-emerald-500'>Image selected:</div>
+                    <div className='text-sm text-emerald-500'>Зображення вибрано:</div>
                     <div className='text-xs text-zinc-400'>{files.image.name.slice(0, 20)}</div>
                   </div>
                 ) : (
@@ -177,28 +177,28 @@ const moodOptions = [
                     <div className='p-3 bg-zinc-800 rounded-full inline-block mb-2'>
                       <Upload className='h-6 w-6 text-zinc-400' />
                     </div>
-                    <div className='text-sm text-zinc-400 mb-2'>Upload artwork</div>
+                    <div className='text-sm text-zinc-400 mb-2'>Завантажити обкладку</div>
                     <Button variant='outline' size='sm' className='text-xs'>
-                      Choose File
+                      Виберіть файл
                     </Button>
                   </>
                 )}
               </div>
             </div>
 
-            {/* Audio upload */}
+            
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Audio File</label>
+              <label className='text-sm font-medium'>Аудіо файл</label>
               <div className='flex items-center gap-2'>
                 <Button variant='outline' onClick={() => audioInputRef.current?.click()} className='w-full'>
-                  {files.audio ? files.audio.name.slice(0, 20) : "Choose Audio File"}
+                  {files.audio ? files.audio.name.slice(0, 20) : "Вибрати аудіо файл"}
                 </Button>
               </div>
             </div>
 
-            {/* Song details */}
+            
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Title*</label>
+              <label className='text-sm font-medium'>Назва*</label>
               <Input
                 value={newSong.songTitle}
                 onChange={(e) => setNewSong({ ...newSong, songTitle: e.target.value })}
@@ -208,13 +208,13 @@ const moodOptions = [
 
             {/* Artist select */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Artist*</label>
+              <label className='text-sm font-medium'>Автор*</label>
               <Select
                 value={newSong.songAuthor}
                 onValueChange={(value) => setNewSong({ ...newSong, songAuthor: value })}
               >
                 <SelectTrigger className='bg-zinc-800 border-zinc-700'>
-                  <SelectValue placeholder='Select artist' />
+                  <SelectValue placeholder='Вибрати автора' />
                 </SelectTrigger>
                 <SelectContent className='bg-zinc-800 border-zinc-700'>
                   {authors.map((author) => (
@@ -228,16 +228,16 @@ const moodOptions = [
 
             {/* Album select */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Album (Optional)</label>
+              <label className='text-sm font-medium'>Альбом (опціонально)</label>
               <Select
                 value={newSong.songAlbum}
                 onValueChange={(value) => setNewSong({ ...newSong, songAlbum: value })}
               >
                 <SelectTrigger className='bg-zinc-800 border-zinc-700'>
-                  <SelectValue placeholder='Select album' />
+                  <SelectValue placeholder='Вибрати альбом' />
                 </SelectTrigger>
                 <SelectContent className='bg-zinc-800 border-zinc-700'>
-                  <SelectItem value='none'>No Album (Single)</SelectItem>
+                  <SelectItem value='none'>Без альбому (Сингл)</SelectItem>
                   {albums.map((album) => (
                     <SelectItem key={album._id} value={album._id}>
                       {album.albumTitle}
@@ -247,9 +247,9 @@ const moodOptions = [
               </Select>
             </div>
 
-            {/* Duration */}
+            
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Duration (seconds)*</label>
+              <label className='text-sm font-medium'>Тривалвсть (секунди)*</label>
               <Input
                 type='number'
                 min='0'
@@ -259,16 +259,15 @@ const moodOptions = [
               />
             </div>
 
-            {/* Decade */}
-            {/* Decade select */}
+            
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Decade*</label>
+              <label className='text-sm font-medium'>Десятиліття*</label>
               <Select
                 value={newSong.decade}
                 onValueChange={(value) => setNewSong({ ...newSong, decade: value })}
               >
                 <SelectTrigger className='bg-zinc-800 border-zinc-700'>
-                  <SelectValue placeholder='Select decade' />
+                  <SelectValue placeholder='Вибрати десятиліття' />
                 </SelectTrigger>
                 <SelectContent className='bg-zinc-800 border-zinc-700'>
                   {decadeOptions.map((decade) => (
@@ -282,33 +281,33 @@ const moodOptions = [
 
             {/* Genres */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Genres*</label>
+              <label className='text-sm font-medium'>Жанри*</label>
               <MultipleSelector
                 value={newSong.genres.map(g => ({value: g, label: g}))}
                 onChange={(options) => setNewSong({...newSong, genres: options.map(o => o.value)})}
                 defaultOptions={genreOptions}
-                placeholder="Select genres"
+                placeholder="Вибрати жанри"
                 creatable
-                emptyIndicator={<p className="text-center text-zinc-400">No genres</p>}
+                emptyIndicator={<p className="text-center text-zinc-400">Нема жанрів</p>}
               />
             </div>
 
             {/* Moods */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Moods</label>
+              <label className='text-sm font-medium'>Настрої</label>
               <MultipleSelector
                 value={newSong.moods.map(m => ({value: m, label: m}))}
                 onChange={(options) => setNewSong({...newSong, moods: options.map(o => o.value)})}
                 defaultOptions={moodOptions}
-                placeholder="Select moods"
-                emptyIndicator={<p className="text-center text-zinc-400">No moods</p>}
+                placeholder="Вибрати настрої"
+                emptyIndicator={<p className="text-center text-zinc-400">Нема настроїв</p>}
               />
             </div>
           </div>
 
           <DialogFooter>
             <Button variant='outline' onClick={() => setSongDialogOpen(false)} disabled={isLoading}>
-              Cancel
+              Скасувати
             </Button>
             <Button 
               onClick={handleSubmit} 
@@ -322,7 +321,7 @@ const moodOptions = [
                 !newSong.decade
               }
             >
-              {isLoading ? "Uploading..." : "Add Song"}
+              {isLoading ? "Uploading..." : "Додати"}
             </Button>
           </DialogFooter>
         </DialogContent>

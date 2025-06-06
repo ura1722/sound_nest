@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { musicStore } from "@/stores/musicStore";
 import { Song } from "@/types";
@@ -31,9 +31,9 @@ function Songs() {
 					<div>
 						<CardTitle className='flex items-center gap-2'>
 							<Music className='size-5 text-emerald-500' />
-							Songs Library
+							Пісні
 						</CardTitle>
-						<CardDescription>Manage your music tracks</CardDescription>
+						
 					</div>
 					<AddSongDialog/>
 				</div>
@@ -43,10 +43,10 @@ function Songs() {
                     <TableHeader>
                         <TableRow className='hover:bg-zinc-800/50'>
                             <TableHead className='w-[50px]'></TableHead>
-                            <TableHead>Title</TableHead>
-                            <TableHead>Artist</TableHead>
-                            <TableHead>Release Date</TableHead>
-                            <TableHead className='text-right'>Actions</TableHead>
+                            <TableHead>Назва</TableHead>
+                            <TableHead>Автор</TableHead>
+                            <TableHead>Дата додання</TableHead>
+                            <TableHead className='text-right'>Дії</TableHead>
                         </TableRow>
                     </TableHeader>
 

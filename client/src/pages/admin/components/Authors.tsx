@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { musicStore } from "@/stores/musicStore";
 import { Author } from "@/types";
@@ -35,10 +35,10 @@ function Authors() {
                 <div className='flex items-center justify-between'>
                     <div>
                         <CardTitle className='flex items-center gap-2'>
-                            <Mic2 className='size-5 text-emerald-500' />
-                            Authors Library
+                            <Mic2 className='size-5 text-orange-500' />
+                            Автори
                         </CardTitle>
-                        <CardDescription>Manage music authors and bands</CardDescription>
+                        
                     </div>
                     <AddAuthorDialog />
                 </div>
@@ -48,10 +48,10 @@ function Authors() {
                     <TableHeader>
                         <TableRow className='hover:bg-zinc-800/50'>
                             <TableHead className='w-[50px]'></TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Genres</TableHead>
-                            <TableHead>Active Since</TableHead>
-                            <TableHead className='text-right'>Actions</TableHead>
+                            <TableHead>Ім'я</TableHead>
+                            <TableHead>Жанри</TableHead>
+                            <TableHead>Активні десятиліття</TableHead>
+                            <TableHead className='text-right'>Дії</TableHead>
                         </TableRow>
                     </TableHeader>
 

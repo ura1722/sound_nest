@@ -206,17 +206,14 @@ export const deletePlaylist = async (req, res) => {
             return res.status(404).json({ message: 'Playlist not found' });
         }
         
-        // Remove playlist reference from user
-        await User.findByIdAndUpdate(req.user._id, {
+        const user = await User.findOne({ clerkId: req.auth.userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+        await User.findByIdAndUpdate(user._id, {
             $pull: { playlists: playlist._id }
         });
 
-        // Optional: Delete the image from Cloudinary
-        if (playlist.playlistImgUrl && !playlist.playlistImgUrl.includes('default_playlist_cover')) {
-            const publicId = playlist.playlistImgUrl.split('/').pop().split('.')[0];
-            await cloudinary.uploader.destroy(`playlist_covers/${publicId}`);
-        }
-        
         res.json({ message: 'Playlist deleted successfully' });
     } catch (error) {
         console.error("Error deleting playlist:", error);

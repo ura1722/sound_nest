@@ -10,7 +10,7 @@ function AdminTopbar() {
 				</Link>
 				<div>
 					<h1 className='text-3xl font-bold text-orange-400'>SoundNest</h1>
-					<p className='text-zinc-400 mt-1'>Manage your music catalog</p>
+					<p className='text-zinc-400 mt-1'>Управління музикальним каталогом</p>
 				</div>
 			</div>
 			<UserButton />

@@ -246,7 +246,7 @@ const moodOptions = [
 
             {/* Декада (автоматично оновлюється при зміні року) */}
             <div className='space-y-2'>
-              <label className='text-sm font-medium'>Декада*</label>
+              <label className='text-sm font-medium'>Десятиліття*</label>
               <MultipleSelector
                 value={[{value: newAlbum.decade, label: newAlbum.decade}]}
                 onChange={(options) => setNewAlbum({...newAlbum, decade: options[0]?.value || ''})}

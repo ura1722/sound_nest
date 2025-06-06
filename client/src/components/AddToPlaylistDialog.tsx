@@ -1,6 +1,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -32,13 +33,14 @@ export function AddToPlaylistDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-zinc-900 border-zinc-700 max-w-md">
+      <DialogContent aria-label="Add to playlist dialog" className="bg-zinc-900 border-zinc-700 max-w-md">
         <DialogHeader>
-          <DialogTitle>Add to Playlist</DialogTitle>
+          <DialogTitle>Додати до списку відтворення</DialogTitle>
+          <DialogDescription />
         </DialogHeader>
         <div className="py-4">
           <p className="text-sm text-zinc-400 mb-4">
-            Add <span className="font-medium text-white">{songTitle}</span> to:
+            Додати <span className="font-medium text-white">{songTitle}</span> до:
           </p>
           
           {playlists?.length ? (
@@ -58,7 +60,7 @@ export function AddToPlaylistDialog({
                     <div>
                       <p className="font-medium">{playlist.playlistTitle}</p>
                       <p className="text-xs text-zinc-400">
-                        {playlist.playlistSongs.length} songs
+                        {playlist.playlistSongs.length} пісень
                       </p>
                     </div>
                   </div>
@@ -67,7 +69,7 @@ export function AddToPlaylistDialog({
             </div>
           ) : (
             <p className="text-zinc-400 text-center py-4">
-              You don't have any playlists yet.
+              Нема списків відтворення
             </p>
           )}
         </div>
@@ -76,15 +78,14 @@ export function AddToPlaylistDialog({
             variant="outline" 
             onClick={() => onOpenChange(false)}
             className="border-zinc-700 hover:bg-zinc-800"
-          >
-            Cancel
+          >Скасувати
           </Button>
           <Button 
             onClick={handleAdd}
             disabled={!selectedPlaylistId}
             className="bg-orange-500 hover:bg-orange-600 disabled:bg-zinc-700 disabled:text-zinc-400"
           >
-            Add to Playlist
+            Додати до списку відтворення
           </Button>
         </div>
       </DialogContent>
